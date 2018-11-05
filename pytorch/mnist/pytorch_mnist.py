@@ -209,7 +209,7 @@ def train(model, optimizer, train_loader, start_epoch, epochs, checkpoint_dir, w
 
       if batch_idx % 10 == 0:
         print('Train Epoch: {}\tLoss: {:.6f}'.format((start_epoch + epoch), loss))
-        
+
         # Write an image to TensorBoardX
         writer.add_image('Images', data[0], batch_num)
 

@@ -24,8 +24,6 @@ from tensorflow.contrib import layers
 
 # Training settings
 parser = argparse.ArgumentParser(description='TensorFlow MNIST Example')
-parser.add_argument('--test-replica-weights', type=bool, default=False,  metavar='BOOL',
-                    help='test that weights are identical across all GPU devices')
 parser.add_argument('--epochs', type=int, default=2, metavar='N_EPOCHS',
                     help='number of epochs to train (default: 2)')
 parser.add_argument('--batch-size', type=int, default=64, metavar='N_SAMPLES',

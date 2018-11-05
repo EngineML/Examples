@@ -38,7 +38,6 @@ class DataGenerator(keras.utils.Sequence):
     self.batch_size = batch_size
     self.target_size = target_size
     self.n_classes = num_classes
-    self.n = len(df)
     self.indices = np.arange(len(self.df))
     if is_train:
       self.sub_dir = 'train'
