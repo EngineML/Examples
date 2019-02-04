@@ -201,9 +201,21 @@ def main(args):
   # Set the output directory and filepath for saving event files and checkpoints
   checkpoint_dir, log_dir = get_output_dirs(args.test_replica_weights)
 
+  # Check if there is a preempted checkpoint to load:
+  if eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.hdf5')):
+    print(
+      'Loading model from preempted checkpoint {}'.format(
+        os.path.join(eml.data.input_dir(), 'preempted.hdf5')
+      )
+    )
+    model.load_weights(os.path.join(eml.data.input_dir(), 'preempted.hdf5'))
+
   callbacks = [
     # Synchronize all replica weights
     eml.callbacks.init_op_callback(),
+
+    # Set the callback to automatically save a model checkpoint if the job is preempted
+    eml.preempted_checkpoint_callback(os.path.join(checkpoint_dir, 'preempted.hdf5')),
 
     keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=0, batch_size=args.batch_size, write_graph=False,
                                 write_grads=True, write_images=False, update_freq=64 * 10),

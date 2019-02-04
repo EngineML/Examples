@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import argparse
 import os
+import time
 
 import engineml.torch as eml
 import numpy as np
@@ -271,26 +272,37 @@ def main(args):
   # Get checkpoint directory
   checkpoint_dir = set_checkpoint_dir(args.test_replica_weights)
 
-  # Check to see if training from saved checkpoint and if so load model
-  start_epoch = 0
-  if eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'checkpoint.pt')):
+  # Create a hanlder to automatically write a checkpoint when a job is preempted
+  def save_handler(m, o, checkpoint_path):
+    state = {
+      'model_state': m.state_dict(),
+      'optimizer_state': o.state_dict(),
+    }
+    if not os.path.isfile(checkpoint_path):
+      eml.save(state, checkpoint_path)
+    else:
+      print('Checkpoint already exists not saving...')
+
+  # Set the preempted checkpoint handler
+  eml.preempted_handler(save_handler, model, optimizer, os.path.join(checkpoint_dir, 'preempted.pt'))
+
+  # Check if there is a preempted checkpoint to load:
+  if eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.pt')):
     print(
-      'Loading model and optimizer from checkpoint {}'.format(
-        os.path.join(eml.data.input_dir(), 'checkpoint.pt')
+      'Loading model from preempted checkpoint {}'.format(
+        os.path.join(eml.data.input_dir(), 'preempted.pt')
       )
     )
-    checkpoint = torch.load(os.path.join(eml.data.input_dir(), 'checkpoint.pt'))
+    checkpoint = torch.load(os.path.join(eml.data.input_dir(), 'preempted.pt'))
     model.load_state_dict(checkpoint['model_state'])
     optimizer.load_state_dict(checkpoint['optimizer_state'])
-    start_epoch = checkpoint['epoch']
 
   for epoch in range(args.epochs):
     # Train model
-    current_epoch = start_epoch + epoch
-    train(model=model, optimizer=optimizer, train_loader=train_loader, current_epoch=current_epoch,
+    train(model=model, optimizer=optimizer, train_loader=train_loader, current_epoch=epoch,
           total_epochs=args.epochs, checkpoint_dir=checkpoint_dir, writer=writer)
     # Validate against test set
-    samples_seen = (1 + current_epoch) * len(train_loader.dataset)
+    samples_seen = (1 + epoch) * len(train_loader.dataset)
     test(model=model, test_loader=test_loader, samples_seen=samples_seen, writer=writer)
 
   # Close TensorBoardX Summary Writer

@@ -308,10 +308,15 @@ def main(_):
   saver = tf.train.Saver(max_to_keep=2)
 
   with tf.Session(config=config) as sess:
+    # Set a handler to automatically save a model checkpoint if the job is preempted
+    eml.preempted_handler(saver.save, sess, os.path.join(checkpoint_dir, 'preempted'))
     # Initialize variables and syncrhonize all replica weights
     sess.run(tf.global_variables_initializer())
     sess.run(tf.local_variables_initializer())
     sess.run(eml.session.init_op())
+    # Check if there is a preempted checkpoint to load
+    if eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.meta')):
+      saver.restore(sess, os.path.join(eml.data.input_dir(), 'preempted'))
     writer = tf.summary.FileWriter(log_dir, sess.graph)
     for e in range(args.epochs):
       train(sess=sess, epoch=e, batch_size=args.batch_size, n_examples=len(df_train), writer=writer, is_train=is_train,
