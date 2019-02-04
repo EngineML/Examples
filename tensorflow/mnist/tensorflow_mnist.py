@@ -37,6 +37,8 @@ parser.add_argument('--test-replica-weights', action='store_true',
                     help='test that weights are identical across all GPU devices')
 parser.add_argument('--run-on-subset', action='store_true',
                     help='run on a subset of the data')
+parser.add_argument('--restore-checkpoint-path', type=str, default='', metavar='RESTORE_CHKPT_PATH',
+                    help='path to checkpoint to load')
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.logging.set_verbosity(tf.logging.INFO)
@@ -305,7 +307,9 @@ def main(_):
 
   # Set the output directories for saving event files and checkpoints
   checkpoint_dir, log_dir = set_checkpoint_dir(args.test_replica_weights)
-  saver = tf.train.Saver(max_to_keep=2)
+
+  # Create the saver and wrap it in eml.saver
+  saver = eml.saver(tf.train.Saver(max_to_keep=2))
 
   with tf.Session(config=config) as sess:
     # Set a handler to automatically save a model checkpoint if the job is preempted
@@ -314,8 +318,11 @@ def main(_):
     sess.run(tf.global_variables_initializer())
     sess.run(tf.local_variables_initializer())
     sess.run(eml.session.init_op())
+    # If there is a predefined checkpoint, check that it exists and load it
+    if os.path.isfile(args.restore_checkpoint_path):
+      saver.restore(sess, args.restore_checkpoint_path)
     # Check if there is a preempted checkpoint to load
-    if eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.meta')):
+    elif eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.meta')):
       saver.restore(sess, os.path.join(eml.data.input_dir(), 'preempted'))
     writer = tf.summary.FileWriter(log_dir, sess.graph)
     for e in range(args.epochs):

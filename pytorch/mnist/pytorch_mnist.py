@@ -28,6 +28,8 @@ parser.add_argument('--test-replica-weights', action='store_true',
                     help='test that weights are identical across all GPU devices')
 parser.add_argument('--run-on-subset', action='store_true',
                     help='run on a subset of the data')
+parser.add_argument('--restore-checkpoint-path', type=str, default='', metavar='RESTORE_CHKPT_PATH',
+                    help='path to checkpoint to load')
 
 
 class DataGenerator(Dataset):
@@ -219,7 +221,7 @@ def train(model, optimizer, train_loader, current_epoch, total_epochs, checkpoin
     'model_state': model.state_dict(),
     'optimizer_state': optimizer.state_dict(),
   }
-  torch.save(state, os.path.join(checkpoint_dir, 'checkpoint.pt'))
+  eml.save(state, os.path.join(checkpoint_dir, 'checkpoint.pt'))
   print('Model Saved to {}!\n'.format(checkpoint_dir))
 
 
@@ -278,16 +280,19 @@ def main(args):
       'model_state': m.state_dict(),
       'optimizer_state': o.state_dict(),
     }
-    if not os.path.isfile(checkpoint_path):
-      eml.save(state, checkpoint_path)
-    else:
-      print('Checkpoint already exists not saving...')
+    eml.save(state, checkpoint_path)
 
   # Set the preempted checkpoint handler
   eml.preempted_handler(save_handler, model, optimizer, os.path.join(checkpoint_dir, 'preempted.pt'))
 
+  # If there is a predefined checkpoint, check that it exists and load it
+  if os.path.isfile(args.restore_checkpoint_path):
+    print('Loading model from predefined checkpoint {}'.format(args.restore_checkpoint_path))
+    checkpoint = torch.load(args.restore_checkpoint_path)
+    model.load_state_dict(checkpoint['model_state'])
+    optimizer.load_state_dict(checkpoint['optimizer_state'])
   # Check if there is a preempted checkpoint to load:
-  if eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.pt')):
+  elif eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.pt')):
     print(
       'Loading model from preempted checkpoint {}'.format(
         os.path.join(eml.data.input_dir(), 'preempted.pt')

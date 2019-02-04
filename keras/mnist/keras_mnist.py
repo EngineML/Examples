@@ -27,7 +27,8 @@ parser.add_argument('--test-replica-weights', action='store_true',
                     help='test that weights are identical across all GPU devices')
 parser.add_argument('--run-on-subset', action='store_true',
                     help='run on a subset of the data')
-
+parser.add_argument('--restore-checkpoint-path', type=str, default='', metavar='RESTORE_CHKPT_PATH',
+                    help='path to checkpoint to load')
 
 class DataGenerator(keras.utils.Sequence):
   """Generates data for Keras"""
@@ -201,8 +202,12 @@ def main(args):
   # Set the output directory and filepath for saving event files and checkpoints
   checkpoint_dir, log_dir = get_output_dirs(args.test_replica_weights)
 
+  # If there is a predefined checkpoint, check that it exists and load it
+  if os.path.isfile(args.restore_checkpoint_path):
+    print('Loading model from predefined checkpoint {}'.format(args.restore_checkpoint_path))
+    model.load_weights(args.restore_checkpoint_path)
   # Check if there is a preempted checkpoint to load:
-  if eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.hdf5')):
+  elif eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.hdf5')):
     print(
       'Loading model from preempted checkpoint {}'.format(
         os.path.join(eml.data.input_dir(), 'preempted.hdf5')
@@ -215,7 +220,7 @@ def main(args):
     eml.callbacks.init_op_callback(),
 
     # Set the callback to automatically save a model checkpoint if the job is preempted
-    eml.preempted_checkpoint_callback(os.path.join(checkpoint_dir, 'preempted.hdf5')),
+    eml.callbacks.preempted_callback(os.path.join(checkpoint_dir, 'preempted.hdf5')),
 
     keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=0, batch_size=args.batch_size, write_graph=False,
                                 write_grads=True, write_images=False, update_freq=64 * 10),
