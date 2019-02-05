@@ -206,14 +206,6 @@ def main(args):
   if os.path.isfile(args.restore_checkpoint_path):
     print('Loading model from predefined checkpoint {}'.format(args.restore_checkpoint_path))
     model.load_weights(args.restore_checkpoint_path)
-  # Check if there is a preempted checkpoint to load:
-  elif eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.hdf5')):
-    print(
-      'Loading model from preempted checkpoint {}'.format(
-        os.path.join(eml.data.input_dir(), 'preempted.hdf5')
-      )
-    )
-    model.load_weights(os.path.join(eml.data.input_dir(), 'preempted.hdf5'))
 
   callbacks = [
     # Synchronize all replica weights

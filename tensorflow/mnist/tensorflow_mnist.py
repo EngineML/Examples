@@ -323,9 +323,6 @@ def main(_):
     # If there is a predefined checkpoint, check that it exists and load it
     if os.path.isfile(args.restore_checkpoint_path):
       saver.restore(sess, args.restore_checkpoint_path)
-    # Check if there is a preempted checkpoint to load
-    elif eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.meta')):
-      saver.restore(sess, os.path.join(eml.data.input_dir(), 'preempted'))
     writer = tf.summary.FileWriter(log_dir, sess.graph)
     for e in range(args.epochs):
       train(sess=sess, epoch=e, batch_size=args.batch_size, n_examples=len(df_train), writer=writer, is_train=is_train,

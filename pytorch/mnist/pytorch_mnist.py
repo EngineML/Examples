@@ -223,9 +223,9 @@ def train(model, optimizer, train_loader, current_epoch, total_epochs, checkpoin
     'optimizer_state': optimizer.state_dict(),
   }
   if test_replica_weights:
-    torch.save(state, os.path.join(checkpoint_dir, 'checkpoint.pt'))
+    torch.save(state, os.path.join(checkpoint_dir, 'checkpoint'))
   else:
-    eml.save(state, os.path.join(checkpoint_dir, 'checkpoint.pt'))
+    eml.save(state, os.path.join(checkpoint_dir, 'checkpoint'))
   print('Model Saved to {}!\n'.format(checkpoint_dir))
 
 
@@ -287,22 +287,12 @@ def main(args):
     eml.save(state, checkpoint_path)
 
   # Set the preempted checkpoint handler
-  eml.preempted_handler(save_handler, model, optimizer, os.path.join(checkpoint_dir, 'preempted.pt'))
+  eml.preempted_handler(save_handler, model, optimizer, os.path.join(checkpoint_dir, 'preempted'))
 
   # If there is a predefined checkpoint, check that it exists and load it
   if os.path.isfile(args.restore_checkpoint_path):
     print('Loading model from predefined checkpoint {}'.format(args.restore_checkpoint_path))
     checkpoint = torch.load(args.restore_checkpoint_path)
-    model.load_state_dict(checkpoint['model_state'])
-    optimizer.load_state_dict(checkpoint['optimizer_state'])
-  # Check if there is a preempted checkpoint to load:
-  elif eml.data.input_dir() and os.path.isfile(os.path.join(eml.data.input_dir(), 'preempted.pt')):
-    print(
-      'Loading model from preempted checkpoint {}'.format(
-        os.path.join(eml.data.input_dir(), 'preempted.pt')
-      )
-    )
-    checkpoint = torch.load(os.path.join(eml.data.input_dir(), 'preempted.pt'))
     model.load_state_dict(checkpoint['model_state'])
     optimizer.load_state_dict(checkpoint['optimizer_state'])
 
@@ -319,8 +309,8 @@ def main(args):
 
   # Run weight replica tests if flag is set
   if args.test_replica_weights:
-    a = '/engine/outputs/0/checkpoint.pt'
-    b = '/engine/outputs/1/checkpoint.pt'
+    a = '/engine/outputs/0/checkpoint'
+    b = '/engine/outputs/1/checkpoint'
     assert eml.compare_checkpoints(a, b), 'Weights do not match across replicas!'
 
 
