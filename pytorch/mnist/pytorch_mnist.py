@@ -290,11 +290,17 @@ def main(args):
   eml.preempted_handler(save_handler, model, optimizer, os.path.join(checkpoint_dir, 'preempted'))
 
   # If there is a predefined checkpoint, check that it exists and load it
-  if os.path.isfile(args.restore_checkpoint_path):
-    print('Loading model from predefined checkpoint {}'.format(args.restore_checkpoint_path))
-    checkpoint = torch.load(args.restore_checkpoint_path)
-    model.load_state_dict(checkpoint['model_state'])
-    optimizer.load_state_dict(checkpoint['optimizer_state'])
+  if args.restore_checkpoint_path:
+    if os.path.isfile(args.restore_checkpoint_path):
+      print('Loading model from predefined checkpoint {}'.format(args.restore_checkpoint_path))
+      if torch.cuda.is_available():
+        checkpoint = torch.load(args.restore_checkpoint_path)
+      else:
+        checkpoint = torch.load(args.restore_checkpoint_path, map_location='cpu')
+      model.load_state_dict(checkpoint['model_state'])
+      optimizer.load_state_dict(checkpoint['optimizer_state'])
+    else:
+      raise IOError('No checkpoint found at %s' % args.restore_checkpoint_path)
 
   for epoch in range(args.epochs):
     # Train model

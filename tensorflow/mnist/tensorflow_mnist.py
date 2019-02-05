@@ -321,8 +321,11 @@ def main(_):
     sess.run(tf.local_variables_initializer())
     sess.run(eml.session.init_op())
     # If there is a predefined checkpoint, check that it exists and load it
-    if os.path.isfile(args.restore_checkpoint_path):
-      saver.restore(sess, args.restore_checkpoint_path)
+    if args.restore_checkpoint_path:
+      if os.path.isfile('%s.meta' % args.restore_checkpoint_path):
+        saver.restore(sess, args.restore_checkpoint_path)
+      else:
+        raise IOError('No checkpoint found at %s.meta' % args.restore_checkpoint_path)
     writer = tf.summary.FileWriter(log_dir, sess.graph)
     for e in range(args.epochs):
       train(sess=sess, epoch=e, batch_size=args.batch_size, n_examples=len(df_train), writer=writer, is_train=is_train,
