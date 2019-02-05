@@ -205,7 +205,7 @@ def main(args):
   # If there is a predefined checkpoint, check that it exists and load it
   if args.restore_checkpoint_path:
     if os.path.isfile(args.restore_checkpoint_path):
-      print('Loading model from predefined checkpoint {}'.format(args.restore_checkpoint_path))
+      print('Loading model from checkpoint {}'.format(args.restore_checkpoint_path))
       model.load_weights(args.restore_checkpoint_path)
     else:
       raise IOError('No checkpoint found at %s' % args.restore_checkpoint_path)

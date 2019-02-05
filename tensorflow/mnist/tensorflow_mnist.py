@@ -323,6 +323,7 @@ def main(_):
     # If there is a predefined checkpoint, check that it exists and load it
     if args.restore_checkpoint_path:
       if os.path.isfile('%s.meta' % args.restore_checkpoint_path):
+        print('Loading model from checkpoint {}'.format(args.restore_checkpoint_path))
         saver.restore(sess, args.restore_checkpoint_path)
       else:
         raise IOError('No checkpoint found at %s.meta' % args.restore_checkpoint_path)

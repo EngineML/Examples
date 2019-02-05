@@ -292,7 +292,7 @@ def main(args):
   # If there is a predefined checkpoint, check that it exists and load it
   if args.restore_checkpoint_path:
     if os.path.isfile(args.restore_checkpoint_path):
-      print('Loading model from predefined checkpoint {}'.format(args.restore_checkpoint_path))
+      print('Loading model from checkpoint {}'.format(args.restore_checkpoint_path))
       if torch.cuda.is_available():
         checkpoint = torch.load(args.restore_checkpoint_path)
       else:
