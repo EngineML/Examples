@@ -182,7 +182,7 @@ def set_checkpoint_dir(test_replica_weights):
   return checkpoint_dir
 
 
-def train(model, optimizer, train_loader, current_epoch, total_epochs, checkpoint_dir, writer):
+def train(model, optimizer, train_loader, current_epoch, total_epochs, checkpoint_dir, writer, test_replica_weights):
   """Train model
 
   :param model: initialized model
@@ -192,6 +192,7 @@ def train(model, optimizer, train_loader, current_epoch, total_epochs, checkpoin
   :param total_epochs: total number of epochs
   :param checkpoint_dir: save path for checkpoints
   :param writer: TensorBoardX Summary Writer
+  :param test_replica_weights: bool, whether testing replica weights as part of integration tests
   """
   samples_seen = current_epoch * len(train_loader.dataset)
   model.train()
@@ -221,7 +222,10 @@ def train(model, optimizer, train_loader, current_epoch, total_epochs, checkpoin
     'model_state': model.state_dict(),
     'optimizer_state': optimizer.state_dict(),
   }
-  eml.save(state, os.path.join(checkpoint_dir, 'checkpoint.pt'))
+  if test_replica_weights:
+    torch.save(state, os.path.join(checkpoint_dir, 'checkpoint.pt'))
+  else:
+    eml.save(state, os.path.join(checkpoint_dir, 'checkpoint.pt'))
   print('Model Saved to {}!\n'.format(checkpoint_dir))
 
 
@@ -304,8 +308,8 @@ def main(args):
 
   for epoch in range(args.epochs):
     # Train model
-    train(model=model, optimizer=optimizer, train_loader=train_loader, current_epoch=epoch,
-          total_epochs=args.epochs, checkpoint_dir=checkpoint_dir, writer=writer)
+    train(model=model, optimizer=optimizer, train_loader=train_loader, current_epoch=epoch, total_epochs=args.epochs,
+          checkpoint_dir=checkpoint_dir, writer=writer, test_replica_weights=args.test_replica_weights)
     # Validate against test set
     samples_seen = (1 + epoch) * len(train_loader.dataset)
     test(model=model, test_loader=test_loader, samples_seen=samples_seen, writer=writer)

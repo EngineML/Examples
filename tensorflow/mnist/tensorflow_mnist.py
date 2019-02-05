@@ -308,8 +308,10 @@ def main(_):
   # Set the output directories for saving event files and checkpoints
   checkpoint_dir, log_dir = set_checkpoint_dir(args.test_replica_weights)
 
-  # Create the saver and wrap it in eml.saver
-  saver = eml.saver(tf.train.Saver(max_to_keep=2))
+  saver = tf.train.Saver(max_to_keep=2)
+  # Wrap saver in eml wrapper if we aren't running the replica weight test.
+  if not args.test_replica_weights:
+    saver = eml.saver(saver)
 
   with tf.Session(config=config) as sess:
     # Set a handler to automatically save a model checkpoint if the job is preempted
