@@ -243,6 +243,6 @@ def main(args):
     assert eml.compare_checkpoints(a, b), 'Weights do not match across replicas!'
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   arguments = parser.parse_args()
   main(arguments)
