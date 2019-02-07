@@ -8,7 +8,7 @@ pythonVersion: "3.6"
 tensorFlowVersion: "1.8.0"
 
 # How many GPUs to run on (It is most efficient to use a multiple of 8)
-numGPUs: 1
+numGPUs: 2
 
 # The engine build script. This script installs all dependencies required for your project
 build: engine_build.sh
@@ -27,4 +27,4 @@ preemptible: true
 
 # The command to run
 commands:
-      - python tensorflow/mnist/tensorflow_mnist.py --epochs 100
+      - python tensorflow/mnist/tensorflow_mnist.py --epochs 1
