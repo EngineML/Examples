@@ -8,7 +8,7 @@ pythonVersion: "3.6"
 tensorFlowVersion: "1.8.0"
 
 # How many GPUs to run on (It is most efficient to use a multiple of 8)
-numGPUs: 2
+numGPUs: 1
 
 # The engine build script. This script installs all dependencies required for your project
 build: engine_build.sh
@@ -23,6 +23,8 @@ dataBucket: datasets.engineml.com
 # Subdirectory of the S3 bucket containing tfrecords
 dataBucketSubdirectory: /mnist
 
+preemptible: true
+
 # The command to run
 commands:
-      - python tensorflow/mnist/tensorflow_mnist.py
+      - python tensorflow/mnist/tensorflow_mnist.py --epochs 100
