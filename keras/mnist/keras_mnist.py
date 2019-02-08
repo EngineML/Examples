@@ -30,6 +30,7 @@ parser.add_argument('--run-on-subset', action='store_true',
 parser.add_argument('--restore-checkpoint-path', type=str, default='', metavar='RESTORE_CHKPT_PATH',
                     help='path to checkpoint to load')
 
+
 class DataGenerator(keras.utils.Sequence):
   """Generates data for Keras"""
   def __init__(self, df, data_dir, batch_size, target_size=(28, 28), num_classes=10, is_train=True):
@@ -49,11 +50,9 @@ class DataGenerator(keras.utils.Sequence):
       self.shuffle = False
     self.on_epoch_end()
 
-
   def __len__(self):
     """Denotes the number of batches per epoch"""
     return int(np.floor(len(self.filenames) / self.batch_size))
-
 
   def __getitem__(self, index):
     """Generate one batch of data"""
@@ -64,7 +63,6 @@ class DataGenerator(keras.utils.Sequence):
     batch_y = [self.labels[k] for k in indices]
     return np.array(batch_x), keras.utils.to_categorical(np.array(batch_y), num_classes=self.n_classes)
 
-
   def load_mnist_img(self, fn):
     """ Load an MNIST image
 
@@ -72,7 +70,6 @@ class DataGenerator(keras.utils.Sequence):
     :return: grayscale img array
     """
     return np.asarray(Image.open(fn), dtype=np.float32).reshape(self.target_size[0], self.target_size[1], 1) / 255.
-
 
   def on_epoch_end(self):
     """Updates indices after each epoch"""

@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import argparse
 import os
-import time
 
 import engineml.torch as eml
 import numpy as np
@@ -45,11 +44,9 @@ class DataGenerator(Dataset):
     else:
       self.sub_dir = 'test'
 
-
   def __len__(self):
     """Denotes the number of batches per epoch"""
     return len(self.df)
-
 
   def __getitem__(self, index):
     """Generate one sample of data"""
@@ -57,7 +54,6 @@ class DataGenerator(Dataset):
     y = self.df['labels'][index]
     sample = {'x': x, 'y': y}
     return sample
-
 
   def load_mnist_img(self, fn):
     """ Load MNIST image
@@ -124,7 +120,6 @@ class Net(nn.Module):
     self.conv2_drop = nn.Dropout2d()
     self.fc1 = nn.Linear(512, 128)
     self.fc2 = nn.Linear(128, 10)
-
 
   def forward(self, x):
     x = F.relu(F.max_pool2d(self.conv1(x), 2))
@@ -278,7 +273,7 @@ def main(args):
   # Get checkpoint directory
   checkpoint_dir = set_checkpoint_dir(args.test_replica_weights)
 
-  # Create a hanlder to automatically write a checkpoint when a job is preempted
+  # Create a handler to automatically write a checkpoint when a job is preempted
   def save_handler(m, o, checkpoint_path):
     state = {
       'model_state': m.state_dict(),
