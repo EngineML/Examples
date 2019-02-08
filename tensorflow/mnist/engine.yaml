@@ -23,8 +23,6 @@ dataBucket: datasets.us-east-1.engineml.com
 # Subdirectory of the S3 bucket containing tfrecords
 dataBucketSubdirectory: /mnist
 
-preemptible: true
-
 # The command to run
 commands:
-      - python tensorflow/mnist/tensorflow_mnist.py --epochs 1
+      - python tensorflow/mnist/tensorflow_mnist.py
