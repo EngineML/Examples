@@ -309,6 +309,10 @@ def main(args):
   # Close TensorBoardX Summary Writer
   writer.close()
 
+  # Access environment variables from your engine.yaml file in your code
+  assert os.environ['WIDGET_TYPE'] == 'gizmo'
+  assert os.environ['MY_SECRET_ENV_VAR'] == 'foo'
+
   # Run weight replica tests if flag is set
   if args.test_replica_weights:
     a = '/engine/outputs/0/checkpoint'

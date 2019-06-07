@@ -234,6 +234,10 @@ def main(args):
                       verbose=1)
   eml.annotate(title='Train', comment='Finished training', tags=[str(args.epochs)])
 
+  # Access environment variables from your engine.yaml file in your code
+  assert os.environ['WIDGET_TYPE'] == 'gizmo'
+  assert os.environ['MY_SECRET_ENV_VAR'] == 'foo'
+
   # Run weight replica tests if flag is set
   if args.test_replica_weights and eml.replica_id() == 0:
     a = '/engine/outputs/0/checkpoint-%d.hdf5' % (args.epochs)
