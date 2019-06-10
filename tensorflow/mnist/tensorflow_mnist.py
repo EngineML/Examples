@@ -339,8 +339,9 @@ def main(_):
       saver.save(sess, os.path.join(checkpoint_dir, 'checkpoint-%s' % (e + 1)))
 
   # Access environment variables from your engine.yaml file in your code
-  assert os.environ['WIDGET_TYPE'] == 'gizmo'
-  assert os.environ['MY_SECRET_ENV_VAR'] == 'foo'
+  if eml.is_engine_runtime():
+    assert os.environ['WIDGET_TYPE'] == 'gizmo'
+    assert os.environ['MY_SECRET_ENV_VAR'] == 'foo'
 
   if args.test_replica_weights:
     # Sometimes replica 0 will reach the test_replica_weights phase before the other replicas have finished writing
