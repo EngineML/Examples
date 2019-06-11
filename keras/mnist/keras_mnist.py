@@ -172,8 +172,8 @@ def wait_for_files(a, b, num_retries=10, delay_secs=5):
 def main(args):
   # Access environment variables from your engine.yaml file in your code
   if eml.is_engine_runtime():
-    assert os.environ['WIDGET_TYPE'] == 'gizmo'
-    assert os.environ['MY_SECRET_ENV_VAR'] == 'foo'
+    assert os.getenv('WIDGET_TYPE') == 'gizmo', 'WIDGET_TYPE env variable is not properly set.'
+    assert os.getenv('MY_SECRET_ENV_VAR') == 'foo', 'MY_SECRET_ENV_VAR env variable is not properly set.'
 
   # Write configuration from arguments to eml-cli
   eml.config.write_from_args(args)
