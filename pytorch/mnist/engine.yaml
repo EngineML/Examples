@@ -4,7 +4,7 @@ apiVersion: "1.1.0"
 # Which version of Python to use. Versions 2.7 and 3.6 are supported
 pythonVersion: "3.6"
 
-# Which version of Pytorch to use. Versions 0.4.0, 0.4.1, and 1.0.0 are supported.
+# Which version of Pytorch to use. Versions 0.4.0, 0.4.1, 1.0.0, 1.0.1, 1.1.0 are supported.
 pytorchVersion: "0.4.0"
 
 # How many GPUs to run on (It is most efficient to use a multiple of 8)
