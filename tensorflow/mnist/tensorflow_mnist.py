@@ -269,6 +269,11 @@ def wait_for_files(num_retries=10, delay_secs=5):
 
 
 def main(_):
+  # Access environment variables from your engine.yaml file in your code
+  if eml.is_engine_runtime():
+    assert os.environ['WIDGET_TYPE'] == 'gizmo', 'WIDGET_TYPE env variable is not properly set.'
+    assert os.environ['MY_SECRET_ENV_VAR'] == 'foo', 'MY_SECRET_ENV_VAR env variable is not properly set.'
+
   # Write configuration from arguments to eml-cli
   eml.config.write_from_args(args)
 
@@ -337,11 +342,6 @@ def main(_):
       test(sess=sess, samples_seen=samples_seen, batch_size=args.batch_size, n_examples=len(df_test), writer=writer,
            is_train=is_train, targets=targets, preds=preds, loss=loss, test_init_op=test_init_op)
       saver.save(sess, os.path.join(checkpoint_dir, 'checkpoint-%s' % (e + 1)))
-
-  # Access environment variables from your engine.yaml file in your code
-  if eml.is_engine_runtime():
-    assert os.environ['WIDGET_TYPE'] == 'gizmo'
-    assert os.environ['MY_SECRET_ENV_VAR'] == 'foo'
 
   if args.test_replica_weights:
     # Sometimes replica 0 will reach the test_replica_weights phase before the other replicas have finished writing

@@ -170,6 +170,11 @@ def wait_for_files(a, b, num_retries=10, delay_secs=5):
 
 
 def main(args):
+  # Access environment variables from your engine.yaml file in your code
+  if eml.is_engine_runtime():
+    assert os.environ['WIDGET_TYPE'] == 'gizmo'
+    assert os.environ['MY_SECRET_ENV_VAR'] == 'foo'
+
   # Write configuration from arguments to eml-cli
   eml.config.write_from_args(args)
 
@@ -233,11 +238,6 @@ def main(args):
                       max_queue_size=128,
                       verbose=1)
   eml.annotate(title='Train', comment='Finished training', tags=[str(args.epochs)])
-
-  # Access environment variables from your engine.yaml file in your code
-  if eml.is_engine_runtime():
-    assert os.environ['WIDGET_TYPE'] == 'gizmo'
-    assert os.environ['MY_SECRET_ENV_VAR'] == 'foo'
 
   # Run weight replica tests if flag is set
   if args.test_replica_weights and eml.replica_id() == 0:
