@@ -24,6 +24,11 @@ dataBucket: datasets.us-east-1.engineml.com
 # Subdirectory of the S3 bucket containing tfrecords
 dataBucketSubdirectory: /mnist
 
+# Set environment that will be available to your code
+environment:
+  WIDGET_TYPE: gizmo
+  MY_SECRET_ENV_VAR: foo
+
 # The command to run
 commands:
       - python tensorflow/mnist/tensorflow_mnist.py
