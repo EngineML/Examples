@@ -14,8 +14,8 @@ numGPUs: 2
 # The engine build script. This script installs all dependencies required for your project
 build: engine_build.sh
 
-# If true, run on high performance (high cost) GPUs (use false for debugging)
-enableHighCostInstances: false
+# Valid values are "k80" and "v100"
+gpuType: "k80"
 
 # S3 bucket where the training data is stored.
 # If your data is hosted with Engine ML, Please contact us for the s3 bucket name
@@ -32,3 +32,11 @@ environment:
 # The command to run
 commands:
       - python tensorflow/mnist/tensorflow_mnist.py
+
+# What instance lifecycle type to use. Valid values are:
+# "never": run on only normal instances
+# "always": run on only preemptible instances
+# "prefer": allocate as many preemptible instances as possible, and on-demand instances when
+#           those are unavailable. When instances are preempted, they are replaced by
+#           preemptible instances when available, or on-demand instances otherwise.
+preemptible: never
