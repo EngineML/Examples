@@ -32,9 +32,10 @@ commands:
       - python pytorch/mnist/pytorch_mnist.py
 
 # What instance lifecycle type to use. Valid values are:
-# "never": run on only normal instances
-# "always": run on only preemptible instances
-# "prefer": allocate as many preemptible instances as possible, and on-demand instances when
+# "never": runs on only dedicated instances
+# "always": runs on only preemptible instances
+# "prefer": allocates as many preemptible instances as possible, and dedicated instances when
 #           those are unavailable. When instances are preempted, they are replaced by
-#           preemptible instances when available, or on-demand instances otherwise.
-preemptible: never
+#           preemptible instances when available (and dedicated instances as needed) and your job
+#           will be restarted.
+preemptible: "prefer"
