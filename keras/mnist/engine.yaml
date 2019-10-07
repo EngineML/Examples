@@ -14,8 +14,8 @@ numGPUs: 2
 # The engine build script. This script installs all dependencies required for your project
 build: engine_build.sh
 
-# If true, run on high performance (high cost) GPUs (use false for debugging)
-enableHighCostInstances: false
+# Valid values are "k80" and "v100"
+gpuType: "k80"
 
 # S3 bucket where the training data is stored.
 dataBucket: datasets.us-east-1.engineml.com
@@ -31,3 +31,12 @@ environment:
 # The command to run
 commands:
       - python keras/mnist/keras_mnist.py
+
+# What instance lifecycle type to use. Valid values are:
+# "never": runs on only dedicated instances
+# "always": runs on only preemptible instances
+# "prefer": allocates as many preemptible instances as possible, and dedicated instances when
+#           those are unavailable. When instances are preempted, they are replaced by
+#           preemptible instances when available (and dedicated instances as needed) and your job
+#           will be restarted.
+preemptible: "prefer"
