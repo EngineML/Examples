@@ -1,5 +1,5 @@
 # The engine yaml api version
-apiVersion: "1.1.0"
+apiVersion: "2.0.0"
 
 # Which version of Python to use. Versions 2.7 and 3.6 are supported
 pythonVersion: "3.6"
