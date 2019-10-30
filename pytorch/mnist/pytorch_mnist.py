@@ -11,6 +11,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data.distributed
 from PIL import Image
+from tenacity import retry, stop_after_attempt, wait_fixed
 from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torch.utils.data import Dataset
@@ -55,6 +56,7 @@ class DataGenerator(Dataset):
     sample = {'x': x, 'y': y}
     return sample
 
+  @retry(reraise=True, stop=stop_after_attempt(3), wait=wait_fixed(3))
   def load_mnist_img(self, fn):
     """ Load MNIST image
 
@@ -71,6 +73,11 @@ def collate_fn(data):
   return torch.tensor(inputs), torch.tensor(targets)
 
 
+@retry(reraise=True, stop=stop_after_attempt(3), wait=wait_fixed(3))
+def read_csv(filename):
+  return pd.read_csv(filename)
+
+
 def create_data_loaders(data_dir, batch_size, run_on_subset):
   """Create data loaders for train and test sets
 
@@ -81,11 +88,11 @@ def create_data_loaders(data_dir, batch_size, run_on_subset):
   """
   # If running integration tests, only use a subset of the data
   if run_on_subset:
-    df_train = pd.read_csv(os.path.join(data_dir, 'train_labels.csv'))[:5000]
-    df_test = pd.read_csv(os.path.join(data_dir, 'test_labels.csv'))[:500]
+    df_train = read_csv(os.path.join(data_dir, 'train_labels.csv'))[:5000]
+    df_test = read_csv(os.path.join(data_dir, 'test_labels.csv'))[:500]
   else:
-    df_train = pd.read_csv(os.path.join(data_dir, 'train_labels.csv'))
-    df_test = pd.read_csv(os.path.join(data_dir, 'test_labels.csv'))
+    df_train = read_csv(os.path.join(data_dir, 'train_labels.csv'))
+    df_test = read_csv(os.path.join(data_dir, 'test_labels.csv'))
 
   # Partition your training and test data across replicas
   df_train = eml.data.distribute(df_train.values, prefetch=True,
