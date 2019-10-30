@@ -14,6 +14,7 @@ from PIL import Image
 from keras import backend as K
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
 from keras.models import Sequential
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 # Training settings
 parser = argparse.ArgumentParser(description='TensorFlow MNIST Example')
@@ -63,6 +64,7 @@ class DataGenerator(keras.utils.Sequence):
     batch_y = [self.labels[k] for k in indices]
     return np.array(batch_x), keras.utils.to_categorical(np.array(batch_y), num_classes=self.n_classes)
 
+  @retry(reraise=True, stop=stop_after_attempt(3), wait=wait_fixed(3))
   def load_mnist_img(self, fn):
     """ Load an MNIST image
 
@@ -98,6 +100,11 @@ def build_conv_model(input_shape=(28, 28, 1), num_classes=10):
   return model
 
 
+@retry(reraise=True, stop=stop_after_attempt(3), wait=wait_fixed(3))
+def read_csv(filename):
+  return pd.read_csv(filename)
+
+
 def get_data_generators(data_dir, batch_size, run_on_subset):
   """Convert class vectors to binary class matrices
 
@@ -108,11 +115,11 @@ def get_data_generators(data_dir, batch_size, run_on_subset):
   """
   # If running integration tests, only use a subset of the data
   if run_on_subset:
-    df_train = pd.read_csv(os.path.join(data_dir, 'train_labels.csv'))[:5000]
-    df_test = pd.read_csv(os.path.join(data_dir, 'test_labels.csv'))[:500]
+    df_train = read_csv(os.path.join(data_dir, 'train_labels.csv'))[:5000]
+    df_test = read_csv(os.path.join(data_dir, 'test_labels.csv'))[:500]
   else:
-    df_train = pd.read_csv(os.path.join(data_dir, 'train_labels.csv'))
-    df_test = pd.read_csv(os.path.join(data_dir, 'test_labels.csv'))
+    df_train = read_csv(os.path.join(data_dir, 'train_labels.csv'))
+    df_test = read_csv(os.path.join(data_dir, 'test_labels.csv'))
 
   # Partition the data across replicas
   df_train = eml.data.distribute(df_train.values, prefetch=True,

@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from tensorflow.contrib import layers
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 # Training settings
 parser = argparse.ArgumentParser(description='TensorFlow MNIST Example')
@@ -177,6 +178,16 @@ def set_checkpoint_dir(test_replica_weights):
   return checkpoint_dir, log_dir
 
 
+@retry(reraise=True, stop=stop_after_attempt(3), wait=wait_fixed(3))
+def run_dataloader_init_op(sess, train_init_op, is_train, is_train_bool):
+  return sess.run(train_init_op, feed_dict={is_train: is_train_bool})
+
+
+@retry(reraise=True, stop=stop_after_attempt(3), wait=wait_fixed(3))
+def train_iter(sess, targets, summaries, loss, acc_op, train_op, is_train):
+  return sess.run([targets, summaries, loss, acc_op, train_op], feed_dict={is_train: True})
+
+
 def train(sess, epoch, batch_size, n_examples, writer, is_train, targets, summaries, loss, acc_op, train_op,
           train_init_op):
   """Train model
@@ -195,18 +206,23 @@ def train(sess, epoch, batch_size, n_examples, writer, is_train, targets, summar
   :param train_init_op: operation that initializes train data generator
   """
   # Run init op for train data loader
-  sess.run(train_init_op, feed_dict={is_train: True})
+  run_dataloader_init_op(sess, train_init_op, is_train, True)
   samples_seen = epoch * n_examples
   batches_per_epoch = int(math.ceil(n_examples / batch_size))
   for batch_cnt in range(batches_per_epoch):
     # Run a training step synchronously.
-    batch_targets, batch_summaries, batch_loss, _, _ = sess.run(
-      [targets, summaries, loss, acc_op, train_op], feed_dict={is_train: True}
+    batch_targets, batch_summaries, batch_loss, _, _ = train_iter(
+      sess, targets, summaries, loss, acc_op, train_op, is_train
     )
     samples_seen += len(batch_targets)
     if batch_cnt % 10 == 0:
       print('Train Epoch: {}/{}\tLoss: {:.6f}'.format(epoch + 1, args.epochs, batch_loss))
       writer.add_summary(batch_summaries, samples_seen)
+
+
+@retry(reraise=True, stop=stop_after_attempt(3), wait=wait_fixed(3))
+def test_iter(sess, targets, preds, loss, is_train):
+  return sess.run([targets, preds, loss], feed_dict={is_train: False})
 
 
 def test(sess, samples_seen, batch_size, n_examples, writer, is_train, targets, preds, loss, test_init_op):
@@ -224,15 +240,13 @@ def test(sess, samples_seen, batch_size, n_examples, writer, is_train, targets, 
   :param test_init_op: operation that initializes test data generator
   """
   # Run init op for train data loader
-  sess.run(test_init_op, feed_dict={is_train: False})
+  run_dataloader_init_op(sess, test_init_op, is_train, False)
   batches_per_epoch = int(math.ceil(n_examples / batch_size))
   replica_test_loss = 0.
   replica_test_accuracy = 0.
   for batch_cnt in range(batches_per_epoch):
     # Run a training step synchronously.
-    batch_targets, batch_preds, batch_loss = sess.run(
-      [targets, preds, loss], feed_dict={is_train: False}
-    )
+    batch_targets, batch_preds, batch_loss = test_iter(sess, targets, preds, loss, is_train)
     replica_test_loss += batch_loss * len(batch_targets)
     replica_test_accuracy += sum(batch_targets == batch_preds)
 
