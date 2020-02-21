@@ -1,6 +1,9 @@
 # The engine yaml api version
 apiVersion: "2.0.0"
 
+# The identifier for this repository
+repository: TEAM_OR_USERNAME/PROJECT
+
 # Which version of Python to use. Versions 2.7 and 3.6 are supported
 pythonVersion: "3.6"
 
