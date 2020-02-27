@@ -33,8 +33,7 @@ environment:
   MY_SECRET_ENV_VAR: foo
 
 # The command to run
-commands:
-      - python tensorflow/mnist/tensorflow_mnist.py
+command: python tensorflow/mnist/tensorflow_mnist.py
 
 # What instance lifecycle type to use. Valid values are:
 # "never": runs on only dedicated instances
