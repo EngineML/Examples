@@ -32,8 +32,7 @@ environment:
   MY_SECRET_ENV_VAR: foo
 
 # The command to run
-commands:
-      - python keras/mnist/keras_mnist.py
+command: python keras/mnist/keras_mnist.py
 
 # What instance lifecycle type to use. Valid values are:
 # "never": runs on only dedicated instances
