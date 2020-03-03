@@ -2,6 +2,6 @@
 
 set -e
 
-pip install -r pytorch/mnist/requirements.txt
+pip install -r pytorch/mnist/requirements-remote.txt
 
 echo "Starting Engines..."
