@@ -14,7 +14,7 @@ pytorchVersion: "1.2.0"
 numGPUs: 2
 
 # The engine build script. This script installs all dependencies required for your project
-build: engine_build.sh
+build: pytorch/mnist/engine_build.sh
 
 # Valid values are "k80" and "v100"
 gpuType: "k80"
