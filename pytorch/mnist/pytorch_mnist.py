@@ -12,7 +12,7 @@ import torch.optim as optim
 import torch.utils.data.distributed
 from PIL import Image
 from tenacity import retry, stop_after_attempt, wait_fixed
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 from torch.autograd import Variable
 from torch.utils.data import Dataset
 

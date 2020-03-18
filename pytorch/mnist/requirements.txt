@@ -2,6 +2,6 @@ numpy==1.18.1
 pandas==1.0.1
 pillow==6.2.0
 tenacity==5.1.1
-tensorboardX==1.4
+tensorboard==1.15.0
 torch==1.2.0
 torchvision==0.4.0

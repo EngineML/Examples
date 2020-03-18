@@ -1,4 +1,4 @@
-tensorboardX==1.4
+tensorboard==1.15.0
 pandas==0.22.0
 pillow==6.2.0
 tenacity==5.1.1
