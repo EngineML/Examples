@@ -6,20 +6,15 @@ import os
 import engineml.torch as eml
 import numpy as np
 import pandas as pd
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data.distributed
 from PIL import Image
 from tenacity import retry, stop_after_attempt, wait_fixed
+from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torch.utils.data import Dataset
-
-if torch.__version__ >= '1.2.0':
-  from torch.utils.tensorboard import SummaryWriter
-else:
-  from tensorboardX import SummaryWriter
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
@@ -278,7 +273,7 @@ def main(args):
   # Create Summary Writer for TensorBoardX.
   # log_dir needs to be set to eml.data.output_dir(). If training locally eml.data.output_dir() returns None.
   writer_dir = './logs' if eml.data.output_dir() is None else os.path.join(eml.data.output_dir(), 'logs')
-  writer = SummaryWriter(log_dir=writer_dir)
+  writer = SummaryWriter(log_dir=writer_dir, flush_secs=1)
 
   # Download data if necessary and create train and test data loaders
   train_loader, test_loader = create_data_loaders(args.data_dir, args.batch_size, args.run_on_subset)
