@@ -17,11 +17,11 @@ and our [Python library](https://docs.engineml.com/docs/eml/reference/common).
 ### Free code and experiment tracking 
 ![code and experiment tracking](https://engineml-readme-images.s3.amazonaws.com/job_details.png)
 
-### Free utilization metrics tracking
-![utilization metrics tracking](https://engineml-readme-images.s3.amazonaws.com/metrics.png)
+### Free system utilization tracking
+![system utilization tracking](https://engineml-readme-images.s3.amazonaws.com/metrics.png)
 
-### Free logs and output storage 
-![log and output storage](https://engineml-readme-images.s3.amazonaws.com/outputs.png)
+### Free log and file storage 
+![log and file storage ](https://engineml-readme-images.s3.amazonaws.com/outputs.png)
 
 Visit our [website](https://engineml.com/) or [request a demo](https://engineml.com/contact)
 for a complete list of features.
