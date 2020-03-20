@@ -2,6 +2,6 @@
 
 set -e
 
-pip install -r tensorflow/mnist/requirements-remote.txt
+pip install -r tf/mnist/requirements-remote.txt
 
 echo "Starting engines..."
