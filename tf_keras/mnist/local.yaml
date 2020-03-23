@@ -5,4 +5,4 @@ apiVersion: "3.0.0"
 repository: mnist/mnist-keras
 
 # The command to run
-command: python keras/mnist/keras_mnist.py --data-dir ./data/mnist
+command: python tf_keras/mnist/keras_mnist.py --data-dir ./data/mnist

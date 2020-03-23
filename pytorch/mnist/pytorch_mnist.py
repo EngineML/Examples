@@ -6,15 +6,20 @@ import os
 import engineml.torch as eml
 import numpy as np
 import pandas as pd
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data.distributed
 from PIL import Image
 from tenacity import retry, stop_after_attempt, wait_fixed
-from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torch.utils.data import Dataset
+
+if torch.__version__ >= '1.2.0':
+  from torch.utils.tensorboard import SummaryWriter
+else:
+  from tensorboardX import SummaryWriter
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
