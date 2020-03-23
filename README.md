@@ -23,5 +23,5 @@ and our [Python library](https://docs.engineml.com/docs/eml/reference/common).
 ### Free log and file storage 
 ![log and file storage ](https://engineml-readme-images.s3.amazonaws.com/outputs.png)
 
-Visit our [website](https://engineml.com/) or [request a demo](https://engineml.com/contact)
+Visit our [website](https://docs.engineml.com) or [request a demo](https://engineml.com/contact)
 for a complete list of features.
