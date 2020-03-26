@@ -9,4 +9,4 @@ environment:
   why: this
 
 # The command to run
-command: python tensorflow/mnist/tensorflow_mnist.py --data-dir ./data/mnist
+command: python tensorflow/mnist/tensorflow_mnist.py --data-dir ./data/mnist --batch-size 32
