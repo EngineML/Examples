@@ -139,7 +139,7 @@ class Net(nn.Module):
     x = F.relu(self.fc1(x))
     x = F.dropout(x, training=self.training)
     x = self.fc2(x)
-    return F.log_softmax(x)
+    return F.log_softmax(x, dim=1)
 
 
 def build_model():
@@ -252,7 +252,7 @@ def test(model, test_loader, samples_seen, writer):
     data, target = Variable(data), Variable(target)
     output = model(data)
     # sum up batch loss
-    replica_test_loss += F.nll_loss(output, target, size_average=False).item()
+    replica_test_loss += F.nll_loss(output, target, reduction='sum').item()
     # get the index of the max log-probability
     pred = output.data.max(1, keepdim=True)[1]
     replica_test_accuracy += pred.eq(target.data.view_as(pred)).cpu().float().sum().item()
