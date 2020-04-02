@@ -5,8 +5,8 @@ creating an Engine ML account, you can run an image classifier on the MNIST data
 or Keras by following these 3 simple steps.
 
 1) Clone this repository and download the MNIST dataset by running `bash get-data.sh` at the root of this repository.
-2) Install the python dependencies: `pip install -r pytorch/mnist/requirements.txt` (We recommend using Python>=3.6).
-3) Launch your first experiment: `engine run pytorch/mnist/local.yaml -o repository <OWNER>/quickstart`.
+2) Install the python dependencies: `pip install -r vision/pytorch/mnist/requirements.txt` (We recommend using Python>=3.6).
+3) Launch your first experiment: `engine run vision/pytorch/mnist/local.yaml -o repository <OWNER>/quickstart`.
 
 If you have not set up your Engine ML account or created a new project called `quickstart`, see our 
 [documentation](https://docs.engineml.com) for a more in-depth quickstart as well as a reference manual 
