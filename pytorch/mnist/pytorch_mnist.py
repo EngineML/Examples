@@ -35,6 +35,7 @@ parser.add_argument('--run-on-subset', action='store_true',
                     help='run on a subset of the data')
 parser.add_argument('--restore-checkpoint-path', type=str, default='', metavar='RESTORE_CHKPT_PATH',
                     help='path to checkpoint to load')
+parser.add_argument('--dataset-metadata-csv', type=str, default='dataset_metadata.csv')
 
 
 class DataGenerator(Dataset):
@@ -58,7 +59,7 @@ class DataGenerator(Dataset):
     """Generate one sample of data"""
     x = self.load_mnist_img(os.path.join(self.data_dir, self.sub_dir, self.df[index][0]))
     y = self.df[index][1]
-    sample = {'x': x, 'y': y}
+    sample = {'x': x, 'y': y, 'filename': self.df[index][0]}
     return sample
 
   @retry(reraise=True, stop=stop_after_attempt(3), wait=wait_fixed(3))
@@ -75,7 +76,8 @@ class DataGenerator(Dataset):
 def collate_fn(data):
   inputs = np.array([sample['x'] for sample in data])
   targets = np.array([sample['y'] for sample in data])
-  return torch.tensor(inputs), torch.tensor(targets)
+  filenames = [sample['filename'] for sample in data]
+  return torch.tensor(inputs), torch.tensor(targets), filenames
 
 
 @retry(reraise=True, stop=stop_after_attempt(3), wait=wait_fixed(3))
@@ -139,7 +141,52 @@ class Net(nn.Module):
     x = F.relu(self.fc1(x))
     x = F.dropout(x, training=self.training)
     x = self.fc2(x)
-    return F.log_softmax(x, dim=1)
+    return x, F.log_softmax(x, dim=1)
+
+
+class DatasetMetadataWriter(object):
+  def __init__(self, filename):
+    self.filename = filename
+    self.base_df = pd.DataFrame(columns=['filename', 'logits', 'log_softmax_scores', 'prediction', 'ground_truth',
+                                         'correct', 'loss', 'avg_batch_loss', 'epoch', 'epoch_step'])
+    self.df = self.base_df
+    if os.path.isfile(self.filename):
+      raise RuntimeError('{filename} already exists!'.format(filename=self.filename))
+    self.df.to_csv(self.filename, index=False)
+
+  def update_df(self, filenames, logits, log_softmax_score, predictions, ground_truth,
+                losses, batch_loss, epoch, epoch_step):
+    """
+    :param filenames: list of len batchsize like ['4706.png', '4855.png', '3229.png', '1119.png']
+    :param logits: list (len batchsize) of lists (len num_classes)
+    :param log_softmax_score: list (len batchsize) of lists (len num_classes)
+    :param predictions: list of len batchsize like [1, 2, 4, 2, 4, 2]
+    :param ground_truth: list of len batchsize like [1, 2, 4, 2, 4, 2]
+    :param losses: list of len batchsize like [1.23, 2.2343, 2.3243, 2.23423, 2.23, 2.0023]
+    :param batch_loss: avg batch loss
+    :param epoch: current epoch
+    :param epoch_step: current step in epoch
+    :return:
+    """
+    avg_batch_loss = [batch_loss for _ in range(len(filenames))]
+    row = {
+      'filename': filenames,
+      'logits': logits,
+      'log_softmax_scores': log_softmax_score,
+      'prediction': predictions,
+      'ground_truth': ground_truth,
+      'correct': [gt==p for gt, p in zip(ground_truth, predictions)],
+      'loss': losses,
+      'avg_batch_loss': avg_batch_loss,
+      'loss_diff_from_avg': [l - abl for l, abl in zip(losses, avg_batch_loss)],
+      'epoch': [epoch for _ in range(len(filenames))],
+      'epoch_step': [epoch_step for _ in range(len(filenames))]
+    }
+    self.df = self.df.append(pd.DataFrame(data=row), ignore_index=True)
+
+  def write_to_csv(self):
+    self.df.to_csv(self.filename, mode='a', header=False, index=False)
+    self.df = self.base_df
 
 
 def build_model():
@@ -188,7 +235,8 @@ def set_checkpoint_dir(test_replica_weights):
   return checkpoint_dir
 
 
-def train(model, optimizer, train_loader, current_epoch, total_epochs, checkpoint_dir, writer, test_replica_weights):
+def train(model, optimizer, train_loader, current_epoch, total_epochs, checkpoint_dir, writer, test_replica_weights,
+          dataset_metadata_writer):
   """Train model
 
   :param model: initialized model
@@ -202,16 +250,22 @@ def train(model, optimizer, train_loader, current_epoch, total_epochs, checkpoin
   """
   samples_seen = current_epoch * len(train_loader.dataset)
   model.train()
-  for batch_idx, (data, target) in enumerate(train_loader):
+  for batch_idx, (data, target, filenames) in enumerate(train_loader):
     if torch.cuda.is_available():
       data, target = data.cuda(), target.cuda()
     data, target = Variable(data), Variable(target)
     optimizer.zero_grad()
-    output = model(data)
-    loss = F.nll_loss(output, target)
+    logits, output = model(data)
+    pred = output.data.max(1, keepdim=True)[1]
+    per_example_loss = F.nll_loss(output, target, reduction='none')
+    loss = torch.mean(per_example_loss)
     loss.backward()
     optimizer.step()
     samples_seen += len(data)
+    dataset_metadata_writer.update_df(filenames=filenames, logits=logits.tolist(), log_softmax_score=output.tolist(),
+                                      predictions=pred.flatten().tolist(), ground_truth=target.tolist(),
+                                      losses=per_example_loss.tolist(), batch_loss=loss.item(), epoch=current_epoch,
+                                      epoch_step=batch_idx)
     if batch_idx % 10 == 0:
       print('Train Epoch: {}/{}\tLoss: {:.6f}'.format(current_epoch + 1, total_epochs, loss))
       # Write an image to TensorBoardX
@@ -219,9 +273,9 @@ def train(model, optimizer, train_loader, current_epoch, total_epochs, checkpoin
 
       # Write loss, accuracy and histogram of weights to Tensorboard
       writer.add_scalar('loss', loss, samples_seen)
-      pred = output.data.max(1, keepdim=True)[1]
       acc = pred.eq(target.data.view_as(pred)).cpu().float().sum().item() / len(target)
       writer.add_scalar('acc', acc, samples_seen)
+      dataset_metadata_writer.write_to_csv()
 
   state = {
     'epoch': current_epoch,
@@ -246,13 +300,15 @@ def test(model, test_loader, samples_seen, writer):
   model.eval()
   replica_test_loss = 0.
   replica_test_accuracy = 0.
-  for data, target in test_loader:
+  for data, target, filenames in test_loader:
     if torch.cuda.is_available():
       data, target = data.cuda(), target.cuda()
     data, target = Variable(data), Variable(target)
-    output = model(data)
+    logits, output = model(data)
+    per_example_loss = F.nll_loss(output, target, reduction='none')
+    total_loss = torch.sum(per_example_loss).item()
     # sum up batch loss
-    replica_test_loss += F.nll_loss(output, target, reduction='sum').item()
+    replica_test_loss += torch.sum(per_example_loss).item()
     # get the index of the max log-probability
     pred = output.data.max(1, keepdim=True)[1]
     replica_test_accuracy += pred.eq(target.data.view_as(pred)).cpu().float().sum().item()
@@ -312,12 +368,13 @@ def main(args):
       optimizer.load_state_dict(checkpoint['optimizer_state'])
     else:
       raise IOError('No checkpoint found at %s' % args.restore_checkpoint_path)
-
+  dataset_metadata_writer = DatasetMetadataWriter(args.dataset_metadata_csv)
   for epoch in range(args.epochs):
     # Train model
     eml.annotate(title='Train', comment='Start training', tags=[str(epoch)])
     train(model=model, optimizer=optimizer, train_loader=train_loader, current_epoch=epoch, total_epochs=args.epochs,
-          checkpoint_dir=checkpoint_dir, writer=writer, test_replica_weights=args.test_replica_weights)
+          checkpoint_dir=checkpoint_dir, writer=writer, test_replica_weights=args.test_replica_weights,
+          dataset_metadata_writer=dataset_metadata_writer)
     # Validate against test set
     samples_seen = (1 + epoch) * len(train_loader.dataset)
     eml.annotate(title='Validation', comment='Start validation', tags=[str(epoch)])

@@ -2,8 +2,8 @@
 apiVersion: "3.0.0"
 
 # The identifier for this repository
-repository: mnist/mnist-torch
+repository: steve/dataset-metadata
 
 # The command to run
-command: python pytorch/mnist/pytorch_mnist.py --data-dir ./data/mnist
+command: python pytorch/mnist/pytorch_mnist.py --data-dir ./data/mnist --dataset-metadata-csv dataset_metadata.csv --run-on-subset --epochs 10
 
