@@ -148,7 +148,8 @@ class DatasetMetadataWriter(object):
   def __init__(self, filename):
     self.filename = filename
     self.base_df = pd.DataFrame(columns=['filename', 'logits', 'log_softmax_scores', 'prediction', 'ground_truth',
-                                         'correct', 'loss', 'avg_batch_loss', 'epoch', 'epoch_step'])
+                                         'correct', 'loss', 'avg_batch_loss', 'loss_diff_from_avg', 'epoch',
+                                         'epoch_step'])
     self.df = self.base_df
     if os.path.isfile(self.filename):
       raise RuntimeError('{filename} already exists!'.format(filename=self.filename))
