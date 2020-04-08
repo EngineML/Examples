@@ -193,8 +193,10 @@ def main(args):
   config = eml.session.distribute_config(config)
   K.set_session(tf.Session(config=config))
 
+  eml.annotate(title='Data', comment='Building data generators')
   train_generator, test_generator = get_data_generators(args.data_dir, args.batch_size, args.run_on_subset)
 
+  eml.annotate(title='Model', comment='Building model and optimizer.')
   model = build_conv_model()
 
   # Scale the learning rate by the number of model replicas
