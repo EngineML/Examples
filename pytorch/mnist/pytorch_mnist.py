@@ -147,13 +147,15 @@ class Net(nn.Module):
 class DatasetMetadataWriter(object):
   def __init__(self, filename):
     self.filename = filename
-    self.base_df = pd.DataFrame(columns=['filename', 'logits', 'log_softmax_scores', 'prediction', 'ground_truth',
+    self.base_df = pd.DataFrame(columns=['filename', 'logits', 'log_softmax_scores', 'prediction',
+                                         'last_epoch_prediction', 'classification_change', 'ground_truth',
                                          'correct', 'loss', 'avg_batch_loss', 'loss_diff_from_avg', 'epoch',
                                          'epoch_step'])
     self.df = self.base_df
     if os.path.isfile(self.filename):
       raise RuntimeError('{filename} already exists!'.format(filename=self.filename))
     self.df.to_csv(self.filename, index=False)
+    self.last_epoch_pred = {}
 
   def update_df(self, filenames, logits, log_softmax_score, predictions, ground_truth,
                 losses, batch_loss, epoch, epoch_step):
@@ -169,12 +171,25 @@ class DatasetMetadataWriter(object):
     :param epoch_step: current step in epoch
     :return:
     """
+    last_epoch_prediction = []
+    classification_change = []
+    for fn, p in zip(filenames, predictions):
+      if epoch == 0:
+        last_epoch_prediction.append(None)
+        classification_change.append(None)
+      else:
+        last_epoch_prediction.append(self.last_epoch_pred[fn])
+        classification_change.append(p != self.last_epoch_pred[fn])
+      self.last_epoch_pred[fn] = p
+
     avg_batch_loss = [batch_loss for _ in range(len(filenames))]
     row = {
       'filename': filenames,
       'logits': logits,
       'log_softmax_scores': log_softmax_score,
       'prediction': predictions,
+      'last_epoch_prediction' : last_epoch_prediction,
+      'classification_change': classification_change,
       'ground_truth': ground_truth,
       'correct': [gt==p for gt, p in zip(ground_truth, predictions)],
       'loss': losses,
