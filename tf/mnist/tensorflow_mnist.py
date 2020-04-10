@@ -294,8 +294,8 @@ def main(_):
   # Create dataframe with train paths and labels
   # If running integration tests, only use a subset of the data
   if args.run_on_subset:
-    df_train = pd.read_csv(os.path.join(args.data_dir, 'train_labels.csv'))[:5000]
-    df_test = pd.read_csv(os.path.join(args.data_dir, 'test_labels.csv'))[:500]
+    df_train = pd.read_csv(os.path.join(args.data_dir, 'train_labels.csv'))[:30000]
+    df_test = pd.read_csv(os.path.join(args.data_dir, 'test_labels.csv'))[:5000]
   else:
     df_train = pd.read_csv(os.path.join(args.data_dir, 'train_labels.csv'))
     df_test = pd.read_csv(os.path.join(args.data_dir, 'test_labels.csv'))
