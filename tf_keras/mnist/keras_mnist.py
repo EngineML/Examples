@@ -115,8 +115,8 @@ def get_data_generators(data_dir, batch_size, run_on_subset):
   """
   # If running integration tests, only use a subset of the data
   if run_on_subset:
-    df_train = read_csv(os.path.join(data_dir, 'train_labels.csv'))[:5000]
-    df_test = read_csv(os.path.join(data_dir, 'test_labels.csv'))[:500]
+    df_train = read_csv(os.path.join(data_dir, 'train_labels.csv'))[:30000]
+    df_test = read_csv(os.path.join(data_dir, 'test_labels.csv'))[:5000]
   else:
     df_train = read_csv(os.path.join(data_dir, 'train_labels.csv'))
     df_test = read_csv(os.path.join(data_dir, 'test_labels.csv'))
