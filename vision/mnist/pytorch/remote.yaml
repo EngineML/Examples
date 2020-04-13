@@ -31,7 +31,7 @@ environment:
   MY_SECRET_ENV_VAR: foo
 
 # The command to run
-command: python pytorch/mnist/pytorch_mnist.py
+command: python vision/mnist/pytorch/pytorch_mnist.py
 
 # What instance lifecycle type to use. Valid values are:
 # "never": runs on only dedicated instances
