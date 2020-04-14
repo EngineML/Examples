@@ -23,6 +23,7 @@ import os
 import random
 import timeit
 
+import engineml.torch as eml
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
@@ -494,9 +495,8 @@ def main():
   )
   parser.add_argument(
     "--output_dir",
-    default=None,
+    default=eml.data.output_dir(),
     type=str,
-    required=True,
     help="The output directory where the model checkpoints and predictions will be written.",
   )
 

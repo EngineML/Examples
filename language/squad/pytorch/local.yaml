@@ -5,7 +5,7 @@ apiVersion: 3.0.0
 repository: squad/squad-pytorch
 
 environment:
-  CUDA_VISIBLE_DEVICES: "01"
+  CUDA_VISIBLE_DEVICES: "0"
 
 # The command to run
 command: python language/squad/pytorch/train.py
@@ -20,4 +20,3 @@ command: python language/squad/pytorch/train.py
   --num_train_epochs 2.0
   --max_seq_length 384
   --doc_stride 128
-  --output_dir debug_squad/
