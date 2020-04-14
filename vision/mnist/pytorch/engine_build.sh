@@ -2,6 +2,6 @@
 
 set -e
 
-pip install -r pytorch/mnist/requirements-remote.txt
+pip install -r vision/mnist/pytorch/requirements-remote.txt
 
 echo "Starting Engines..."
