@@ -15,7 +15,7 @@ tensorFlowVersion: "1.8.0"
 numGPUs: 2
 
 # The engine build script. This script installs all dependencies required for your project
-build: tf/mnist/engine_build.sh
+build: vision/mnist/tf/engine_build.sh
 
 # Valid values are "k80" and "v100"
 gpuType: "k80"
