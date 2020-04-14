@@ -4,7 +4,7 @@ This repository was created so you can quickly start using Engine ML's free expe
 creating an Engine ML account, you can run an image classifier on the MNIST dataset using PyTorch, TensorFlow, 
 or Keras by following these 3 simple steps.
 
-1) Clone this repository and download the MNIST dataset by running `. vision/mnist/get-data.sh` at the root of this repository.
+1) Clone this repository and download the MNIST dataset by running `./vision/mnist/get-data.sh` at the root of this repository.
 2) Install the python dependencies: `pip install -r vision/mnist/pytorch/requirements.txt` (We recommend using Python>=3.6).
 3) Launch your first experiment: `engine run vision/mnist/pytorch/local.yaml -o repository <OWNER>/quickstart`.
 
