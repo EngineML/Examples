@@ -77,7 +77,7 @@ def to_list(tensor):
 def train(args, train_dataset, model, tokenizer):
   """ Train the model """
   if args.local_rank in [-1, 0]:
-    tb_writer = SummaryWriter(log_dir=eml.data.data_dir())
+    tb_writer = SummaryWriter(log_dir=eml.data.output_dir())
 
   args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
   train_sampler = RandomSampler(train_dataset) if args.local_rank == -1 else DistributedSampler(train_dataset)
