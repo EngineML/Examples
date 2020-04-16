@@ -7,15 +7,14 @@ repository: TEAM_OR_USERNAME/PROJECT
 # Which version of Python to use. Versions 2.7 and 3.6 are supported
 pythonVersion: "3.6"
 
-# Which version of Tensorflow to use.
-# Versions 1.3.0, 1.4.1, 1.5.1, 1.6.0, 1.7.1, 1.8.0, 1.9.0, 1.10.1, 1.11.0, 1.12.2, 1.13.1 are supported.
-tensorFlowVersion: "1.8.0"
+# Which version of Pytorch to use. Versions 0.4.0, 0.4.1, 1.0.0, 1.0.1, 1.1.0, 1.2.0, 1.3.0 are supported.
+pytorchVersion: "1.2.0"
 
 # How many GPUs to run on (It is most efficient to use a multiple of 8)
 numGPUs: 2
 
 # The engine build script. This script installs all dependencies required for your project
-build: tf_keras/mnist/engine_build.sh
+build: vision/mnist/pytorch/engine_build.sh
 
 # Valid values are "k80" and "v100"
 gpuType: "k80"
@@ -32,7 +31,7 @@ environment:
   MY_SECRET_ENV_VAR: foo
 
 # The command to run
-command: python tf_keras/mnist/keras_mnist.py
+command: python vision/mnist/pytorch/pytorch_mnist.py
 
 # What instance lifecycle type to use. Valid values are:
 # "never": runs on only dedicated instances
