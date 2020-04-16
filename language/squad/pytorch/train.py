@@ -170,7 +170,8 @@ def train(args, train_dataset, model, tokenizer):
   # Added here for reproductibility
   set_seed(args)
 
-  for _ in train_iterator:
+  for e in train_iterator:
+    eml.annotate('Train Epoch {}'.format(e))
     epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
     for step, batch in enumerate(epoch_iterator):
 
@@ -294,6 +295,7 @@ def evaluate(args, model, tokenizer, prefix=""):
   all_results = []
   start_time = timeit.default_timer()
 
+  eml.annotate('Evaluating')
   for batch in tqdm(eval_dataloader, desc="Evaluating"):
     model.eval()
     batch = tuple(t.to(args.device) for t in batch)
