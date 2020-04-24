@@ -2,7 +2,7 @@
 apiVersion: 3.0.0
 
 # The identifier for this repository
-repository: mikyo/examples
+repository: mikyoking/mnist
 
 # The command to run
 command: python vision/mnist/tf/tensorflow_mnist.py --data-dir ./data/mnist
