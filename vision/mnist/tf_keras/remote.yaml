@@ -15,7 +15,7 @@ tensorFlowVersion: "1.8.0"
 numGPUs: 2
 
 # The engine build script. This script installs all dependencies required for your project
-build: keras/mnist/engine_build.sh
+build: vision/mnist/tf_keras/engine_build.sh
 
 # Valid values are "k80" and "v100"
 gpuType: "k80"
@@ -32,7 +32,7 @@ environment:
   MY_SECRET_ENV_VAR: foo
 
 # The command to run
-command: python keras/mnist/keras_mnist.py
+command: python vision/mnist/tf_keras/keras_mnist.py
 
 # What instance lifecycle type to use. Valid values are:
 # "never": runs on only dedicated instances

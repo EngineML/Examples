@@ -6,15 +6,20 @@ import os
 import engineml.torch as eml
 import numpy as np
 import pandas as pd
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data.distributed
 from PIL import Image
 from tenacity import retry, stop_after_attempt, wait_fixed
-from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torch.utils.data import Dataset
+
+if torch.__version__ >= '1.2.0':
+  from torch.utils.tensorboard import SummaryWriter
+else:
+  from tensorboardX import SummaryWriter
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
@@ -88,8 +93,8 @@ def create_data_loaders(data_dir, batch_size, run_on_subset):
   """
   # If running integration tests, only use a subset of the data
   if run_on_subset:
-    df_train = read_csv(os.path.join(data_dir, 'train_labels.csv'))[:5000]
-    df_test = read_csv(os.path.join(data_dir, 'test_labels.csv'))[:500]
+    df_train = read_csv(os.path.join(data_dir, 'train_labels.csv'))[:30000]
+    df_test = read_csv(os.path.join(data_dir, 'test_labels.csv'))[:5000]
   else:
     df_train = read_csv(os.path.join(data_dir, 'train_labels.csv'))
     df_test = read_csv(os.path.join(data_dir, 'test_labels.csv'))
@@ -134,7 +139,7 @@ class Net(nn.Module):
     x = F.relu(self.fc1(x))
     x = F.dropout(x, training=self.training)
     x = self.fc2(x)
-    return F.log_softmax(x)
+    return F.log_softmax(x, dim=1)
 
 
 def build_model():
@@ -247,7 +252,7 @@ def test(model, test_loader, samples_seen, writer):
     data, target = Variable(data), Variable(target)
     output = model(data)
     # sum up batch loss
-    replica_test_loss += F.nll_loss(output, target, size_average=False).item()
+    replica_test_loss += F.nll_loss(output, target, reduction='sum').item()
     # get the index of the max log-probability
     pred = output.data.max(1, keepdim=True)[1]
     replica_test_accuracy += pred.eq(target.data.view_as(pred)).cpu().float().sum().item()

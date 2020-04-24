@@ -2,6 +2,6 @@
 
 set -e
 
-pip install -r keras/mnist/requirements-remote.txt
+pip install -r vision/mnist/tf/requirements-remote.txt
 
 echo "Starting engines..."
