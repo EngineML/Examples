@@ -2,7 +2,7 @@
 apiVersion: "3.0.0"
 
 # The identifier for this repository
-repository: OWNER/PROJECT
+repository: mikeldking/mnist
 
 # Set environment that will be available to your code
 environment:
