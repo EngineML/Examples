@@ -2,11 +2,11 @@
 apiVersion: "3.0.0"
 
 # The identifier for this repository
-repository: mikeldking/examples
+repository: OWNER/PROJECT
 
 # Set environment that will be available to your code
 environment:
-  why: this
+  foo: bar
 
 # The command to run
 command: python tensorflow/mnist/tensorflow_mnist.py --data-dir ./data/mnist --batch-size 32
