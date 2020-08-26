@@ -15,13 +15,13 @@ and our [Python library](https://docs.engineml.com/docs/eml/reference/common).
 
 ## Some of the benefits of Engine ML include:
 ### Free code and experiment tracking
-![code and experiment tracking](https://engineml-readme-images.s3.amazonaws.com/job_details.png)
+![code and experiment tracking](https://images.s3.amazonaws.com/screenshots/run_details.png)
 
 ### Free system utilization tracking
-![system utilization tracking](https://engineml-readme-images.s3.amazonaws.com/metrics.png)
+![system utilization tracking](https://images.s3.amazonaws.com/screenshots/system.png)
 
 ### Free log and file storage
-![log and file storage ](https://engineml-readme-images.s3.amazonaws.com/outputs.png)
+![log and file storage ](https://images.s3.amazonaws.com/screenshots/outputs.png)
 
 Visit our [website](https://docs.engineml.com) or [request a demo](https://engineml.com/contact)
 for a complete list of features.
